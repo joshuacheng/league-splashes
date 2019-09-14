@@ -25,4 +25,4 @@ Working as of 9/14/2019
 ### Improvements
 * Make it run with command line args instead of changing source code
 * Performance probably
-* Get champ names from API somewhere rather than scraping from info site
+* Get champ names from API/Data Dragon somewhere rather than scraping from info site (http://ddragon.leagueoflegends.com/cdn/9.18.1/data/en_US/champion.json)
