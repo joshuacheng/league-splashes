@@ -1,11 +1,6 @@
 import bs4
 import os
-import shutil
-# import requests
 from requests_html import HTMLSession
-import requests
-from selenium import webdriver
-import re
 
 from PIL import Image
 from os import listdir
