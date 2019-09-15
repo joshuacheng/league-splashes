@@ -107,22 +107,24 @@ def get_champ_names_with_requests(write=False, print_names=False):
 
 def do_the_do(name_arr):
     images_base_url = 'https://ddragon.leagueoflegends.com/cdn/img/champion/splash/'
+    erase_line = '\x1b[2K'
 
     # Start getting to all those links
     for name in name_arr:
         i = 0
         while True:
             extended_url = images_base_url + name + '_' + str(i) + '.jpg'
-            print(extended_url)
+            print(erase_line + 'Getting ' + name + ' art #' + str(i + 1), end='\r')
             response = session.get(extended_url, stream=True)
             if response.status_code == 403:
                 break
 
-            image_url = './LeagueSplashes/' + extended_url[60:] + '.jpg'
+            image_url = './LeagueSplashes/' + extended_url[60:]
             with open(image_url, 'wb') as image_file:
                 image_file.write(response.content)
 
             i += 1
+        print()
 
 
 
@@ -133,14 +135,13 @@ def do_the_do(name_arr):
 
 
 def convert_directory_to_pngs(directory):
-    target = '.png'
 
     for file in listdir(directory):
         filename, extension = splitext(file)
         try:
-            if extension not in ['.py', target]:
+            if extension not in ['.py', '.png']:
                 im = Image.open(directory + filename + extension)
-                im.save(directory + filename + target)
+                im.save(directory + filename + '.png')
                 os.remove(directory + filename + extension)
                 print('Converted %s' % filename)
         except OSError:
@@ -179,7 +180,7 @@ os.makedirs('./LeagueSplashes', exist_ok=True)
 base_url = 'https://na.leagueoflegends.com/en/game-info/champions/'
 session = HTMLSession()
 
-all_names = get_champ_names_with_requests(False, True)
+all_names = get_champ_names_with_requests()
 do_the_do(all_names)
 
 # remove_jpg_from_names('./LeagueSplashes')
