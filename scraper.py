@@ -1,5 +1,6 @@
 import bs4
 import os
+import sys
 from requests_html import HTMLSession
 
 from PIL import Image
@@ -61,43 +62,41 @@ def retrieve_names():
     return arr
 
 
+def get_champ_name_from_html_id(element):
+    id = element.attrs['id']
+
+    # format is 'champion-grid-<champName>', so start after last '-'
+    champStartIndex = id.rfind('-') + 1 
+    champName = id[champStartIndex:]
+
+    return champName
+
 '''
     Gets all champion names and returns an array of them
     write: Write champion names to ./ChampionNames.txt
     print_names: Print out names as they are found
 '''
 
-
-def get_champ_names_with_requests(write=False, print_names=False):
+def get_champ_names_with_requests(print_names=False):
     r = session.get(base_url)
     r.html.render()
-    names = r.html.find('.champ-name')
+    names = r.html.find(
+        '.champion-grid.grid-list.gs-container.gs-no-gutter.default-7-col.content-center', first=True).find('li')
     champ_name_array = []
 
     # Sometimes it fails for some reason keep trying
     while len(names) == 0:
         r = session.get(base_url)
         r.html.render()
-        names = r.html.find('.champ-name')
-
-    file_string = ''
-
-    for i in range(0, len(names)):
-        names[i] = names[i].find('a', first=True)
-        names[i] = names[i].attrs['href']
-        file_string += names[i][:-1] + ' '
-        champ_name_array.append(names[i][:-1])
+        names = r.html.find(
+            '.champion-grid.grid-list.gs-container.gs-no-gutter.default-7-col.content-center', first=True).find('li')
+    
+    names = list(map(get_champ_name_from_html_id, names))
 
     if print_names:
         print(names)
 
-    # Write to champion names file
-    if write:
-        name_file = open('ChampionNames.txt', 'w')
-        name_file.write(file_string)
-        name_file.close()
-
-    return champ_name_array
+    return names
 
 
 '''
@@ -112,6 +111,7 @@ def do_the_do(name_arr):
     # Start getting to all those links
     for name in name_arr:
         i = 0
+        
         while True:
             extended_url = images_base_url + name + '_' + str(i) + '.jpg'
             print(erase_line + 'Getting ' + name + ' art #' + str(i + 1), end='\r')
